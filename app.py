@@ -27,6 +27,17 @@ def load_model():
     else:
         st.warning("Please upload the weights and config files")
         return None, None, None
+def draw_labels(img, boxes, confidences, class_ids, classes):
+    for i in range(len(boxes)):
+        x, y, w, h = boxes[i]
+        label = str(classes[class_ids[i]])
+        confidence = confidences[i]
+        color = (0, 255, 0)
+
+        cv2.rectangle(img, (x, y), (x + w, y + h), color, 2)
+        cv2.putText(img, f'{label} {int(confidence * 100)}%', (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+
+    return img
 
 
 # Run detection
