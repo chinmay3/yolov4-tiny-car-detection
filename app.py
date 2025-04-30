@@ -6,18 +6,28 @@ from matplotlib import pyplot as plt
 
 # Load YOLOv4-tiny custom model (ensure the weights and cfg file are in the same folder or specify the correct path)
 def load_model():
-    # Load YOLOv4-tiny custom config and weights
-    net = cv2.dnn.readNet('yolov4-tiny-custom_best.weights', 'yolov4-tiny-custom.cfg')
+    # Streamlit file uploader for weights and cfg
+    weights_file = st.file_uploader("Upload YOLOv4-tiny Weights", type=['weights'])
+    cfg_file = st.file_uploader("Upload YOLOv4-tiny Config", type=['cfg'])
     
-    # Load class names (make sure obj.names is present)
-    with open('obj.names', 'r') as f:
-        classes = [line.strip() for line in f.readlines()]
-    
-    # Get output layer names
-    layer_names = net.getLayerNames()
-    output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
-    
-    return net, classes, output_layers
+    if weights_file is not None and cfg_file is not None:
+        # Save the uploaded files to disk
+        with open("yolov4-tiny-custom_best.weights", "wb") as f:
+            f.write(weights_file.getbuffer())
+        with open("yolov4-tiny-custom.cfg", "wb") as f:
+            f.write(cfg_file.getbuffer())
+        
+        # Now load the model using the uploaded files
+        net = cv2.dnn.readNet('yolov4-tiny-custom_best.weights', 'yolov4-tiny-custom.cfg')
+        with open('obj.names', 'r') as f:
+            classes = [line.strip() for line in f.readlines()]
+        layer_names = net.getLayerNames()
+        output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
+        return net, classes, output_layers
+    else:
+        st.warning("Please upload the weights and config files")
+        return None, None, None
+
 
 # Run detection
 def detect_objects(image, net, output_layers):
