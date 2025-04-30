@@ -89,26 +89,24 @@ def display_image(image, boxes, confidences, class_ids, classes):
 
 # Streamlit app UI
 def main():
-    st.title("YOLOv4-tiny Object Detection")
+    st.title("YOLOv4-tiny Car Detection App")
 
-    st.write("""
-    Upload an image and let the model detect the car and swimming pool.
-    """)
+    net, classes, output_layers = load_model()
 
-    # File uploader to upload an image
-    uploaded_image = st.file_uploader("Choose an image...", type=['jpg', 'png', 'jpeg'])
+    if net is None:
+        st.stop()  # Prevent the app from running further
 
-    if uploaded_image is not None:
-        # Read and process the uploaded image
-        img = np.array(bytearray(uploaded_image.read()), dtype=np.uint8)
-        image = cv2.imdecode(img, cv2.IMREAD_COLOR)
+    uploaded_file = st.file_uploader("Upload an image", type=['jpg', 'jpeg', 'png'])
+    
+    if uploaded_file is not None:
+        file_bytes = np.asarray(bytearray(uploaded_file.read()), dtype=np.uint8)
+        image = cv2.imdecode(file_bytes, 1)
 
-        # Load model and perform object detection
-        net, classes, output_layers = load_model()
         boxes, confidences, class_ids = detect_objects(image, net, output_layers)
+        result_img = draw_labels(image.copy(), boxes, confidences, class_ids, classes)
 
-        # Display the detected objects in the image
-        display_image(image, boxes, confidences, class_ids, classes)
+        st.image(result_img, caption='Detected Image', use_column_width=True)
+
 
 if __name__ == '__main__':
     main()
