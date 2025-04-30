@@ -48,19 +48,36 @@ def draw_labels(img, boxes, confidences, class_ids, classes):
 
 # Streamlit UI
 def main():
-    st.title("YOLOv4-Tiny Object Detection (Cars & Pools)")
-    uploaded_file = st.file_uploader("Upload Image", type=['jpg', 'jpeg', 'png'])
+    st.set_page_config(page_title="YOLOv4-Tiny Object Detection", layout="centered")
+    st.title("🚗 Object Detection with YOLOv4-Tiny")
+    st.write("Upload an image to detect **cars** and **swimming pools**.")
+
+    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
         image = Image.open(uploaded_file).convert("RGB")
         image_np = np.array(image)
+        st.image(image, caption='Uploaded Image', use_column_width=True)
 
-        st.image(image_np, caption='Uploaded Image', use_column_width=True)
-
+        # Load YOLO model
         net, classes, output_layers = load_model()
+        
+        # Detect objects
         boxes, confidences, class_ids = detect_objects(image_np, net, output_layers)
+
+        # Count detected classes
+        detected_classes = [classes[i] for i in class_ids]
+        car_count = detected_classes.count("car")
+        pool_count = detected_classes.count("swimming_pool")
+
+        st.markdown("### 🔍 Detected Objects:")
+        st.write(f"🚗 Cars: **{car_count}**")
+        st.write(f"🏊 Swimming Pools: **{pool_count}**")
+
+        # Draw labels
         result_img = draw_labels(image_np.copy(), boxes, confidences, class_ids, classes)
 
+        # Display result
         st.image(result_img, caption='Detection Result', use_column_width=True)
 
 if __name__ == "__main__":
