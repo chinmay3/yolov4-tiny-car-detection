@@ -5,7 +5,7 @@ from PIL import Image
 
 # Load YOLO model
 def load_model():
-    net = cv2.dnn.readNet('yolov4-tiny-custom_best.weights', 'yolov4-tiny-custom.cfg')
+    net = cv2.dnn.readNet('yolov4-tiny-custom_final.weights', 'yolov4-tiny-custom.cfg')
     classes = []
     with open("obj.names", "r") as f:
         classes = [line.strip() for line in f.readlines()]
