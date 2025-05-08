@@ -55,7 +55,7 @@ def main():
         image = Image.open(uploaded_file).convert("RGB")
         image_np = np.array(image)
 
-        st.image(image_np, caption='Uploaded Image', use_column_width=True)
+        st.image(image_np, caption='Uploaded Image', use_container_width=True)
 
         net, classes, output_layers = load_model()
         boxes, confidences, class_ids = detect_objects(image_np, net, output_layers)
@@ -69,7 +69,7 @@ def main():
 
         result_img = draw_labels(image_np.copy(), boxes, confidences, class_ids, classes)
 
-        st.image(result_img, caption='Detection Result', use_column_width=True)
+        st.image(result_img, caption='Detection Result', use_container_width=True)
 
 
 if __name__ == "__main__":
