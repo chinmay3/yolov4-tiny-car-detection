@@ -53,17 +53,13 @@ def main():
         """
         <style>
             body {
-                background-color: #0f1117;
+                background-color: #12181b;
                 color: white;
             }
             .big-font {
                 font-size: 24px !important;
                 font-weight: bold;
-                color: #00ffcc;
-            }
-            .small-note {
-                color: #cccccc;
-                font-size: 14px;
+                color: #00e6ac;
             }
             .report-box {
                 background-color: #1f2937;
@@ -71,6 +67,12 @@ def main():
                 border-radius: 12px;
                 margin-top: 20px;
                 box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+            }
+            .image-box img {
+                width: 70%;
+                border-radius: 10px;
+                margin-bottom: 10px;
+                box-shadow: 0 0 10px rgba(0,255,255,0.2);
             }
         </style>
         """, unsafe_allow_html=True
@@ -85,7 +87,8 @@ def main():
         image = Image.open(uploaded_file).convert("RGB")
         image_np = np.array(image)
 
-        st.image(image_np, caption='📷 Uploaded Image', use_container_width=True)
+        st.markdown('<div class="image-box">📷 <b>Uploaded Image:</b><br>', unsafe_allow_html=True)
+        st.image(image_np, caption=None)
 
         net, classes, output_layers = load_model()
         boxes, confidences, class_ids = detect_objects(image_np, net, output_layers)
@@ -109,7 +112,9 @@ def main():
 
         result_img = draw_labels(image_np.copy(), boxes, confidences, class_ids, classes)
 
-        st.image(result_img, caption='✅ Detection Result with Bounding Boxes', use_container_width=True)
+        st.markdown('<div class="image-box">✅ <b>Detection Result:</b><br>', unsafe_allow_html=True)
+        st.image(result_img, caption=None)
+
 
 
 if __name__ == "__main__":
