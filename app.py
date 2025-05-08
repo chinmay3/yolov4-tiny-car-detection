@@ -48,28 +48,68 @@ def draw_labels(img, boxes, confidences, class_ids, classes):
 
 # Streamlit UI
 def main():
-    st.title("YOLOv4-Tiny Object Detection (Cars & Pools)")
-    uploaded_file = st.file_uploader("Upload Image", type=['jpg', 'jpeg', 'png'])
+    st.set_page_config(page_title="Vehicle Congestion Detector", layout="wide", initial_sidebar_state="auto")
+    st.markdown(
+        """
+        <style>
+            body {
+                background-color: #0f1117;
+                color: white;
+            }
+            .big-font {
+                font-size: 24px !important;
+                font-weight: bold;
+                color: #00ffcc;
+            }
+            .small-note {
+                color: #cccccc;
+                font-size: 14px;
+            }
+            .report-box {
+                background-color: #1f2937;
+                padding: 20px;
+                border-radius: 12px;
+                margin-top: 20px;
+                box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+            }
+        </style>
+        """, unsafe_allow_html=True
+    )
+
+    st.title("🚗 Vehicle Congestion Detection System")
+    st.markdown("Upload an image to detect and count cars using a YOLOv4-Tiny model.")
+
+    uploaded_file = st.file_uploader("Upload an image", type=['jpg', 'jpeg', 'png'])
 
     if uploaded_file is not None:
         image = Image.open(uploaded_file).convert("RGB")
         image_np = np.array(image)
 
-        st.image(image_np, caption='Uploaded Image', use_container_width=True)
+        st.image(image_np, caption='📷 Uploaded Image', use_container_width=True)
 
         net, classes, output_layers = load_model()
         boxes, confidences, class_ids = detect_objects(image_np, net, output_layers)
 
-        # Count number of cars detected
         detected_classes = [classes[class_id] for class_id in class_ids]
         car_count = detected_classes.count("car")
 
-        # Print the number of cars detected
-        st.write(f"Number of cars detected: {car_count}")
+        congestion_level = "Low"
+        if car_count >= 10:
+            congestion_level = "High"
+        elif car_count >= 5:
+            congestion_level = "Moderate"
+
+        st.markdown(f"""
+        <div class="report-box">
+            <p class="big-font">🧾 Detection Report</p>
+            <p><strong>Number of vehicles detected:</strong> {car_count}</p>
+            <p><strong>Estimated congestion level:</strong> {congestion_level}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
         result_img = draw_labels(image_np.copy(), boxes, confidences, class_ids, classes)
 
-        st.image(result_img, caption='Detection Result', use_container_width=True)
+        st.image(result_img, caption='✅ Detection Result with Bounding Boxes', use_container_width=True)
 
 
 if __name__ == "__main__":
